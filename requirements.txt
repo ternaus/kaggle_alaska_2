@@ -1,0 +1,9 @@
+albumentations
+git+git://github.com/BloodAxe/pytorch-toolbelt
+git+git://github.com/ternaus/iglovikov_helper_functions
+numpy
+opencv
+pandas
+pytorch-lightning
+torch
+torchvision
