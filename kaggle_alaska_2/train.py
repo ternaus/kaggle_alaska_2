@@ -101,7 +101,8 @@ class Alaska2(pl.LightningModule):
 
         return self.optimizers, [scheduler]
 
-    def training_step(self, batch, batch_idx):  # skipcq: PYL-W0613
+    # skipcq: PYL-W0613
+    def training_step(self, batch, batch_idx):
         features = batch["features"]
         logits = self.forward(features)
 
@@ -115,7 +116,7 @@ class Alaska2(pl.LightningModule):
         lr = [x["lr"] for x in self.optimizers[0].param_groups][0]
         return torch.Tensor([lr])[0].cuda()
 
-    def validation_step(self, batch, batch_idx, dataset_idx):  # skipcq: PYL-W0221
+    def validation_step(self, batch, batch_idx, dataset_idx):
         features = batch["features"]
         targets = batch["targets"]
 
