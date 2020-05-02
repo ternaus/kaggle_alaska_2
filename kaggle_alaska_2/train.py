@@ -15,7 +15,7 @@ from kaggle_alaska_2.dataloader import Alaska2Dataset
 
 from iglovikov_helper_functions.dl.pytorch.lightning import find_average
 from iglovikov_helper_functions.config_parsing.utils import object_from_dict
-from kaggle_alaska_2.utils import get_samples, folder2label
+from kaggle_alaska_2.utils import get_samples, folder2label, idx2name
 from sklearn.model_selection import KFold
 
 
@@ -27,7 +27,7 @@ def get_args():
     return parser.parse_args()
 
 
-class SpaceNet6(pl.LightningModule):
+class Alaska2(pl.LightningModule):
     def __init__(self, hparams):
         super().__init__()
 
@@ -49,7 +49,7 @@ class SpaceNet6(pl.LightningModule):
 
         kf = KFold(n_splits=self.hparams["num_folds"], random_state=self.hparams["seed"], shuffle=True)
 
-        for folder in folder2label.keys():
+        for folder in sorted(list(folder2label.keys())):
             samples = np.array(get_samples(Path(self.hparams["data_path"]) / folder))
 
             for fold_id, (train_index, val_index) in enumerate(kf.split(samples)):
@@ -57,13 +57,13 @@ class SpaceNet6(pl.LightningModule):
                     continue
 
                 self.train_samples += samples[train_index].tolist()
-                self.val_samples += samples[val_index].tolist()
+                self.val_samples += [samples[val_index].tolist()]
 
     def train_dataloader(self):
         train_aug = from_dict(self.hparams["train_aug"])
 
         result = DataLoader(
-            Alaska2Dataset(self.train_samples, train_aug),
+            Alaska2Dataset(self.train_samples[:1000], train_aug),
             batch_size=self.hparams["train_parameters"]["batch_size"],
             num_workers=self.hparams["num_workers"],
             shuffle=True,
@@ -75,14 +75,20 @@ class SpaceNet6(pl.LightningModule):
     def val_dataloader(self):
         val_aug = from_dict(self.hparams["val_aug"])
 
-        result = DataLoader(
-            Alaska2Dataset(self.val_samples, val_aug),
-            batch_size=self.hparams["val_parameters"]["batch_size"],
-            num_workers=self.hparams["num_workers"],
-            shuffle=False,
-            pin_memory=True,
-            drop_last=False,
-        )
+        result = []
+
+        for sample in self.val_samples:
+            result += [
+                DataLoader(
+                    Alaska2Dataset(sample[:1000], val_aug),
+                    batch_size=self.hparams["val_parameters"]["batch_size"],
+                    num_workers=self.hparams["num_workers"],
+                    shuffle=False,
+                    pin_memory=True,
+                    drop_last=False,
+                )
+            ]
+
         return result
 
     def configure_optimizers(self):
@@ -109,7 +115,7 @@ class SpaceNet6(pl.LightningModule):
         lr = [x["lr"] for x in self.optimizers[0].param_groups][0]
         return torch.Tensor([lr])[0].cuda()
 
-    def validation_step(self, batch, batch_idx):
+    def validation_step(self, batch, batch_idx, dataset_idx):
         features = batch["features"]
         targets = batch["targets"]
 
@@ -117,16 +123,20 @@ class SpaceNet6(pl.LightningModule):
 
         total_loss = self.loss(logits, targets)
 
-        return {"val_loss": total_loss}
+        return {f"val_loss_{idx2name[dataset_idx]}": total_loss}
 
     def validation_epoch_end(self, outputs: List) -> Dict[str, Any]:
-        avg_val_loss = find_average(outputs, "val_loss")
+        logs = {}
+        val_loss = 0
 
-        logs = {
-            "val_loss": avg_val_loss,
-        }
+        for output in outputs:
+            for name, values in output[0].items():
+                loss = values.mean()
+                val_loss += loss
 
-        return {"val_val_loss": avg_val_loss, "log": logs}
+                logs[name] = loss
+
+        return {"val_loss": val_loss, "log": logs}
 
 
 def main():
@@ -143,7 +153,7 @@ def main():
         upload_source_files=[],
     )
 
-    pipeline = SpaceNet6(hparams)
+    pipeline = Alaska2(hparams)
 
     Path(hparams["checkpoint_callback"]["filepath"]).mkdir(exist_ok=True, parents=True)
 

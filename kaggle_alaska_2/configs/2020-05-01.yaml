@@ -27,6 +27,7 @@ trainer:
   val_percent_check: 1.0
   progress_bar_refresh_rate: 1
   gradient_clip_val: 3
+  benchmark: True
 
 checkpoint_callback:
   type: pytorch_lightning.callbacks.ModelCheckpoint
@@ -65,9 +66,9 @@ train_aug:
     transforms:
       - __class_fullname__: albumentations.augmentations.transforms.RandomCrop
         always_apply: false
-        height: 224
+        height: 128
         p: 1
-        width: 224
+        width: 128
       - __class_fullname__: albumentations.augmentations.transforms.Normalize
         always_apply: false
         max_pixel_value: 255.0
