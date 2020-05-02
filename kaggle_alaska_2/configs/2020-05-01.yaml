@@ -9,7 +9,7 @@ experiment_name: "2020-05-01"
 
 model:
   type: timm.create_model
-  model_name: resnet50
+  model_name: tf_efficientnet_b3_ns
   num_classes: 2
 
 trainer:
@@ -22,7 +22,7 @@ trainer:
   max_epochs: 100
   weights_summary: top
   distributed_backend: dp
-  num_sanity_val_steps: 0
+  num_sanity_val_steps: 2
   train_percent_check: 1.0
   val_percent_check: 1.0
   progress_bar_refresh_rate: 1
@@ -40,11 +40,11 @@ checkpoint_callback:
 train_parameters:
   num_epochs: 100
   weight_decay: 1e-4
-  batch_size: 128
+  batch_size: 96
   precision": 16
 
 val_parameters:
-  batch_size: 128
+  batch_size: 32
 
 optimizer:
   type: iglovikov_helper_functions.dl.pytorch.optimizers.SGD_GC
@@ -66,9 +66,9 @@ train_aug:
     transforms:
       - __class_fullname__: albumentations.augmentations.transforms.RandomCrop
         always_apply: false
-        height: 128
+        height: 224
         p: 1
-        width: 128
+        width: 224
       - __class_fullname__: albumentations.augmentations.transforms.Normalize
         always_apply: false
         max_pixel_value: 255.0

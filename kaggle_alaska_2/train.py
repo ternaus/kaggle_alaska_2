@@ -10,13 +10,13 @@ import yaml
 from albumentations.core.serialization import from_dict
 from pytorch_lightning.logging import NeptuneLogger
 from torch.utils.data import DataLoader
-
+from collections import defaultdict
 from kaggle_alaska_2.dataloader import Alaska2Dataset
-
-from iglovikov_helper_functions.dl.pytorch.lightning import find_average
+from torch import nn
 from iglovikov_helper_functions.config_parsing.utils import object_from_dict
-from kaggle_alaska_2.utils import get_samples, folder2label, idx2name
+from kaggle_alaska_2.utils import get_samples, folder2label, idx2name, alaska_weighted_auc
 from sklearn.model_selection import KFold
+from sklearn.metrics import log_loss
 
 
 def get_args():
@@ -63,7 +63,7 @@ class Alaska2(pl.LightningModule):
         train_aug = from_dict(self.hparams["train_aug"])
 
         result = DataLoader(
-            Alaska2Dataset(self.train_samples[:1000], train_aug),
+            Alaska2Dataset(self.train_samples, train_aug),
             batch_size=self.hparams["train_parameters"]["batch_size"],
             num_workers=self.hparams["num_workers"],
             shuffle=True,
@@ -80,7 +80,7 @@ class Alaska2(pl.LightningModule):
         for sample in self.val_samples:
             result += [
                 DataLoader(
-                    Alaska2Dataset(sample[:1000], val_aug),
+                    Alaska2Dataset(sample, val_aug),
                     batch_size=self.hparams["val_parameters"]["batch_size"],
                     num_workers=self.hparams["num_workers"],
                     shuffle=False,
@@ -120,23 +120,44 @@ class Alaska2(pl.LightningModule):
         targets = batch["targets"]
 
         logits = self.forward(features)
+        probs = nn.Softmax(dim=1)(logits)[:, 1]
 
-        total_loss = self.loss(logits, targets)
-
-        return {f"val_loss_{idx2name[dataset_idx]}": total_loss}
+        return {f"{idx2name[dataset_idx]}": probs, "targets": targets}
 
     def validation_epoch_end(self, outputs: List) -> Dict[str, Any]:
-        logs = {}
-        val_loss = 0
+        result: defaultdict = defaultdict(dict)
+
+        for column in idx2name.values():
+            result[column] = {"probs": [], "targets": []}
 
         for output in outputs:
-            for name, values in output[0].items():
-                loss = values.mean()
-                val_loss += loss
+            for o in output:
+                targets = o["targets"].cpu().numpy().tolist()
+                del o["targets"]
+                probs = list(o.values())[0].cpu().numpy().tolist()
+                key = list(o.keys())[0]
 
-                logs[name] = loss
+                result[key]["targets"] += targets
+                result[key]["probs"] += probs
 
-        return {"val_loss": val_loss, "log": logs}
+        probs_list: List[float] = []
+        target_list: List[float] = []
+
+        losses = {}
+
+        for key, value in result.items():
+            probs_list += value["probs"]
+            target_list += value["targets"]
+
+            lg = log_loss(target_list, probs)
+            losses[f"log_loss_{key}"] = lg
+
+        score = alaska_weighted_auc(target_list, probs)
+
+        logs = {"val_score": score}
+        logs = {**logs, **losses}
+
+        return {"val_loss": score, "log": logs}
 
 
 def main():
