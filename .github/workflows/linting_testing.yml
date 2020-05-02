@@ -30,7 +30,7 @@ jobs:
         run: |
           pip install flake8
           flake8
-#      - name: Run Mypy
-#        run: |
-#          pip install mypy
-#          mypy kaggle_alaska_2
+      - name: Run Mypy
+        run: |
+          pip install mypy
+          mypy kaggle_alaska_2

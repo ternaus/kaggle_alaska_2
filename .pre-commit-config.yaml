@@ -4,7 +4,6 @@ repos:
     rev: 19.10b0
     hooks:
       - id: black
-        args: [--config=black.toml]
   - repo: https://github.com/asottile/yesqa
     rev: v1.1.0
     hooks:
