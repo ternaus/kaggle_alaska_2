@@ -23,7 +23,7 @@ def alaska_weighted_auc(y_true: Union[np.ndarray, list], y_valid: Union[np.ndarr
     tpr_thresholds = [0.0, 0.4, 1.0]
     weights = [2, 1]
 
-    fpr, tpr, thresholds = metrics.roc_curve(y_true, y_valid, pos_label=1)
+    fpr, tpr, _ = metrics.roc_curve(y_true, y_valid, pos_label=1)
 
     # size of subsets
     areas = np.array(tpr_thresholds[1:]) - np.array(tpr_thresholds[:-1])

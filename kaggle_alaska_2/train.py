@@ -40,12 +40,12 @@ class Alaska2(pl.LightningModule):
 
         self.loss = object_from_dict(self.hparams["loss"])
 
-    def forward(self, batch: Dict) -> torch.Tensor:
+    def forward(self, batch: Dict) -> torch.Tensor:  # skipcq: PYL-W0221
         return self.model(batch)
 
     def prepare_data(self):
-        self.train_samples = []
-        self.val_samples = []
+        self.train_samples = []  # skipcq: PYL-W0201
+        self.val_samples = []  # skipcq: PYL-W0201
 
         kf = KFold(n_splits=self.hparams["num_folds"], random_state=self.hparams["seed"], shuffle=True)
 
@@ -97,11 +97,11 @@ class Alaska2(pl.LightningModule):
         )
 
         scheduler = object_from_dict(self.hparams["scheduler"], optimizer=optimizer)
-        self.optimizers = [optimizer]
+        self.optimizers = [optimizer]  # skipcq: PYL-W0201
 
         return self.optimizers, [scheduler]
 
-    def training_step(self, batch, batch_idx):
+    def training_step(self, batch, batch_idx):  # skipcq: PYL-W0613
         features = batch["features"]
         logits = self.forward(features)
 
@@ -115,14 +115,14 @@ class Alaska2(pl.LightningModule):
         lr = [x["lr"] for x in self.optimizers[0].param_groups][0]
         return torch.Tensor([lr])[0].cuda()
 
-    def validation_step(self, batch, batch_idx, dataset_idx):
+    def validation_step(self, batch, batch_idx, dataset_idx):  # skipcq: PYL-W0221
         features = batch["features"]
         targets = batch["targets"]
 
         logits = self.forward(features)
         probs = nn.Softmax(dim=1)(logits)[:, 1]
 
-        return {f"{idx2name[dataset_idx]}": probs, "targets": targets}
+        return {str(idx2name[dataset_idx]): probs, "targets": targets}
 
     def validation_epoch_end(self, outputs: List) -> Dict[str, Any]:
         result: defaultdict = defaultdict(dict)
@@ -164,11 +164,11 @@ def main():
     args = get_args()
 
     with open(args.config_path) as f:
-        hparams = yaml.load(f, Loader=yaml.FullLoader)
+        hparams = yaml.load(f, Loader=yaml.FullLoader)  # skipcq: BAN-B506
 
     logger = NeptuneLogger(
         api_key=os.environ["NEPTUNE_API_TOKEN"],
-        project_name=f"ternaus/kagglealaska2",
+        project_name="ternaus/kagglealaska2",
         experiment_name=f"{hparams['experiment_name']}",  # Optional,
         tags=["pytorch-lightning", "mlp"],  # Optional,
         upload_source_files=[],
