@@ -3,7 +3,6 @@ from typing import Union, Dict, List, Tuple
 from sklearn import metrics
 import numpy as np
 
-
 folder2label = {"Cover": 0, "JMiPOD": 1, "JUNIWARD": 1, "UERD": 1}
 
 idx2name = dict(zip(range(len(folder2label)), sorted(folder2label.keys())))
@@ -22,6 +21,9 @@ def get_samples(image_path: Path) -> List[Tuple[Path, int]]:
 def alaska_weighted_auc(y_true: Union[np.ndarray, list], y_valid: Union[np.ndarray, list]) -> float:
     tpr_thresholds = [0.0, 0.4, 1.0]
     weights = [2, 1]
+
+    y_true = np.array(y_true)
+    y_valid = np.array(y_valid)
 
     fpr, tpr, _ = metrics.roc_curve(y_true, y_valid, pos_label=1)
 
@@ -47,3 +49,8 @@ def alaska_weighted_auc(y_true: Union[np.ndarray, list], y_valid: Union[np.ndarr
         competition_metric += submetric
 
     return competition_metric / normalization
+
+
+def cross_entropy(predictions, targets):
+    predictions = np.clip(predictions, 1e-15, 1 - 1e-15)
+    return -np.mean(targets * np.log(predictions))
