@@ -2,25 +2,26 @@ import argparse
 import os
 from pathlib import Path
 from typing import Dict, Any, List
-import numpy as np
+
 import apex
+import numpy as np
 import pytorch_lightning as pl
 import torch
 import yaml
 from albumentations.core.serialization import from_dict
+
+# from torch import nn
+from iglovikov_helper_functions.config_parsing.utils import object_from_dict
+
+# from sklearn.metrics import log_loss
+from iglovikov_helper_functions.dl.pytorch.lightning import find_average
 from pytorch_lightning.logging import NeptuneLogger
+from sklearn.model_selection import KFold
 from torch.utils.data import DataLoader
 
 # from collections import defaultdict
 from kaggle_alaska_2.dataloader import Alaska2Dataset
-
-# from torch import nn
-from iglovikov_helper_functions.config_parsing.utils import object_from_dict
-from kaggle_alaska_2.utils import get_samples, folder2label, idx2name, alaska_weighted_auc, cross_entropy
-from sklearn.model_selection import KFold
-
-# from sklearn.metrics import log_loss
-from iglovikov_helper_functions.dl.pytorch.lightning import find_average
+from kaggle_alaska_2.utils import get_samples, folder2label
 
 
 def get_args():
