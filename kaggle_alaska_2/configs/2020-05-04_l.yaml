@@ -1,6 +1,7 @@
 ---
 seed: 1984
 data_path: /tmp/kaggle_alaska_2
+test_data_path: /home/vladimir/workspace/evo970/data/kaggle_alaska_2
 sync_bn: False
 num_folds: 5
 fold_id: 0
@@ -37,6 +38,10 @@ train_parameters:
   weight_decay: 1e-4
   batch_size: 128
   precision": 16
+
+test_parameters:
+  batch_size: 64
+  tta: d4 # d4 lr or None
 
 checkpoint_callback:
   type: pytorch_lightning.callbacks.ModelCheckpoint
