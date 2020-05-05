@@ -75,7 +75,7 @@ train_aug:
       - __class_fullname__: albumentations.augmentations.transforms.RandomRotate90
         always_apply: false
         p: 0.5
-      - __class_fullname__: albumentations.augmentations.transforms.ImageCompression
+      - __class_fullname__: albumentations.augmentations.transforms.JpegCompression
         always_apply: false
         p: 0.5
         quality_lower: 75
