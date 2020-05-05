@@ -70,7 +70,7 @@ def main():
         for folder in sorted(list(folder2label.keys())):
             samples = np.array(get_samples(Path(hparams["test_data_path"]) / folder))
 
-            for fold_id, (train_index, val_index) in enumerate(kf.split(samples)):
+            for fold_id, (_, val_index) in enumerate(kf.split(samples)):
                 if fold_id != hparams["fold_id"]:
                     continue
 
