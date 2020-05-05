@@ -5,7 +5,7 @@ sync_bn: False
 num_folds: 5
 fold_id: 0
 num_workers: 16
-experiment_name: "2020-05-02_l"
+experiment_name: "2020-05-05_l"
 
 model:
   type: timm.create_model
@@ -19,7 +19,7 @@ trainer:
   gpus: 1
   use_amp: True
   amp_level: O1
-  max_epochs: 20
+  max_epochs: 40
   weights_summary: top
   distributed_backend: dp
   num_sanity_val_steps: 2
@@ -31,7 +31,7 @@ trainer:
 
 scheduler:
   type: kaggle_alaska_2.schedulers.PolyLR
-  max_iter: 20
+  max_iter: 40
 
 train_parameters:
   weight_decay: 1e-4
@@ -40,7 +40,7 @@ train_parameters:
 
 checkpoint_callback:
   type: pytorch_lightning.callbacks.ModelCheckpoint
-  filepath: "2020-05-02_l"
+  filepath: "2020-05-05_l"
   monitor: val_loss
   verbose: True
   mode: min
@@ -50,9 +50,8 @@ val_parameters:
   batch_size: 48
 
 optimizer:
-  type: iglovikov_helper_functions.dl.pytorch.optimizers.AdamW_GCC
-  lr: 0.0001
-  eps: 1.53e-05
+  type: iglovikov_helper_functions.dl.pytorch.optimizers.SGD_GCC
+  lr: 0.01
 
 loss:
   type: torch.nn.CrossEntropyLoss
@@ -75,6 +74,14 @@ train_aug:
       - __class_fullname__: albumentations.augmentations.transforms.RandomRotate90
         always_apply: false
         p: 0.5
+      - __class_fullname__: albumentations.augmentations.transforms.RandomBrightnessContrast
+        always_apply: false
+        p: 0.5
+      - __class_fullname__: albumentations.augmentations.transforms.JpegCompression
+        always_apply: false
+        p: 0.5
+        quality_lower: 75
+        quality_upper: 95
       - __class_fullname__: albumentations.augmentations.transforms.Normalize
         always_apply: false
         max_pixel_value: 255.0
