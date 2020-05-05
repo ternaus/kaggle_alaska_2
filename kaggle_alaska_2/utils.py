@@ -61,6 +61,7 @@ def cross_entropy(predictions, targets):
 
 def load_checkpoint(file_path: Union[Path, str], rename_in_layers: Optional[dict] = None) -> Dict[str, Any]:
     """Loads PyTorch checkpoint, optionally renaming layer names.
+
     Args:
         file_path: path to the torch checkpoint.
         rename_in_layers: {from_name: to_name}
