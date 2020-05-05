@@ -78,9 +78,8 @@ train_aug:
       - __class_fullname__: albumentations.augmentations.transforms.ImageCompression
         always_apply: false
         p: 0.5
-        quality_lower: 0.75
-        quality_upper: 0.95
-        compression_type: 0
+        quality_lower: 75
+        quality_upper: 95
       - __class_fullname__: albumentations.augmentations.transforms.Normalize
         always_apply: false
         max_pixel_value: 255.0
