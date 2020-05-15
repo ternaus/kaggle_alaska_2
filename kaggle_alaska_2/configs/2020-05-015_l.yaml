@@ -27,7 +27,7 @@ trainer:
   val_percent_check: 1.0
   progress_bar_refresh_rate: 1
   gradient_clip_val: 3
-  benchmark: True
+  benchmark: False
 
 scheduler:
   type: kaggle_alaska_2.schedulers.PolyLR
