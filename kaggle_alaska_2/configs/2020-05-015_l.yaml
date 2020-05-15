@@ -34,9 +34,10 @@ scheduler:
   max_iter: 100
 
 train_parameters:
-#  weight_decay: 1e-4
+  weight_decay: 1e-4
   batch_size: 128
   precision": 16
+  momentum: 0.9
 
 checkpoint_callback:
   type: pytorch_lightning.callbacks.ModelCheckpoint
@@ -52,8 +53,6 @@ val_parameters:
 optimizer:
   type: for apex.optimizers.fused_sgd.FusedSGD
   lr: 0.003
-  weight_decay: 0.0001
-  momentum: 0.9
 
 loss:
   type: torch.nn.CrossEntropyLoss

@@ -80,22 +80,6 @@ class Alaska2(pl.LightningModule):
     def val_dataloader(self):
         val_aug = from_dict(self.hparams["val_aug"])
 
-        # result = []
-
-        # for sample in self.val_samples:
-        #     result += [
-        #         DataLoader(
-        #             Alaska2Dataset(sample, val_aug),
-        #             batch_size=self.hparams["val_parameters"]["batch_size"],
-        #             num_workers=self.hparams["num_workers"],
-        #             shuffle=False,
-        #             pin_memory=True,
-        #             drop_last=False,
-        #         )
-        #     ]
-        #
-        # return result
-
         return DataLoader(
             Alaska2Dataset(self.val_samples, val_aug),
             batch_size=self.hparams["val_parameters"]["batch_size"],
@@ -107,7 +91,10 @@ class Alaska2(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = object_from_dict(
-            self.hparams["optimizer"], params=filter(lambda x: x.requires_grad, self.model.parameters())
+            self.hparams["optimizer"],
+            params=filter(lambda x: x.requires_grad, self.model.parameters()),
+            weight_decay=self.hparams["train_parameters"]["weight_decay"],
+            momentum=self.hparams["train_parameters"]["weight_decay"],
         )
 
         scheduler = object_from_dict(self.hparams["scheduler"], optimizer=optimizer)
