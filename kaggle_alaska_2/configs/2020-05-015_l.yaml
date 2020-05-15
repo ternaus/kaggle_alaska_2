@@ -34,7 +34,7 @@ scheduler:
   max_iter: 100
 
 train_parameters:
-  weight_decay: 1e-4
+  weight_decay: 0.0001
   batch_size: 128
   precision": 16
   momentum: 0.9
