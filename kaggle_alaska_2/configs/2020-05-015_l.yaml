@@ -34,10 +34,8 @@ scheduler:
   max_iter: 100
 
 train_parameters:
-  weight_decay: 0.0001
   batch_size: 128
   precision": 16
-  momentum: 0.9
 
 checkpoint_callback:
   type: pytorch_lightning.callbacks.ModelCheckpoint
@@ -48,11 +46,13 @@ checkpoint_callback:
   save_top_k: 1
 
 val_parameters:
-  batch_size: 128
+  batch_size: 256
 
 optimizer:
-  type: for apex.optimizers.fused_sgd.FusedSGD
+  type: apex.optimizers.fused_sgd.FusedSGD
   lr: 0.003
+  weight_decay: 0.0001
+  momentum: 0.9
 
 loss:
   type: torch.nn.CrossEntropyLoss
@@ -64,11 +64,6 @@ train_aug:
     keypoint_params: null
     p: 1
     transforms:
-      - __class_fullname__: albumentations.augmentations.transforms.RandomCrop
-        always_apply: false
-        height: 224
-        p: 1
-        width: 224
       - __class_fullname__: albumentations.augmentations.transforms.HorizontalFlip
         always_apply: false
         p: 0.5
