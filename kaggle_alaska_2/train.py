@@ -92,9 +92,9 @@ class Alaska2(pl.LightningModule):
     def configure_optimizers(self):
         optimizer = object_from_dict(
             self.hparams["optimizer"],
-            params=filter(lambda x: x.requires_grad, self.model.parameters()),
             weight_decay=self.hparams["train_parameters"]["weight_decay"],
             momentum=self.hparams["train_parameters"]["weight_decay"],
+            params=filter(lambda x: x.requires_grad, self.model.parameters()),
         )
 
         scheduler = object_from_dict(self.hparams["scheduler"], optimizer=optimizer)
