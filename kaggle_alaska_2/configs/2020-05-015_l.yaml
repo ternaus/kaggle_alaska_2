@@ -21,7 +21,7 @@ trainer:
   amp_level: O1
   max_epochs: 100
   weights_summary: top
-  distributed_backend: ddp
+  distributed_backend: dp
   num_sanity_val_steps: 2
   train_percent_check: 1.0
   val_percent_check: 1.0
