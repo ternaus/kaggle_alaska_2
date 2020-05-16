@@ -34,7 +34,7 @@ scheduler:
   max_iter: 100
 
 train_parameters:
-  batch_size: 24
+  batch_size: 32
   precision": 16
 
 checkpoint_callback:
@@ -46,7 +46,7 @@ checkpoint_callback:
   save_top_k: 1
 
 val_parameters:
-  batch_size: 256
+  batch_size: 64
 
 optimizer:
   type: apex.optimizers.fused_sgd.FusedSGD
