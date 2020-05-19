@@ -1,0 +1,104 @@
+---
+seed: 1984
+data_path: /tmp/kaggle_alaska_2
+sync_bn: True
+num_folds: 5
+fold_id: 0
+num_workers: 16
+experiment_name: "2020-05-15_l"
+
+model:
+  type: timm.create_model
+  model_name: ecaresnet50d
+  num_classes: 2
+
+trainer:
+  type: pytorch_lightning.Trainer
+  early_stop_callback: False
+  default_save_path: ./
+  gpus: 2
+  use_amp: True
+  amp_level: O1
+  max_epochs: 100
+  weights_summary: top
+  distributed_backend: dp
+  num_sanity_val_steps: 2
+  train_percent_check: 1.0
+  val_percent_check: 1.0
+  progress_bar_refresh_rate: 1
+  gradient_clip_val: 3
+  benchmark: True
+
+scheduler:
+  type: kaggle_alaska_2.schedulers.PolyLR
+  max_iter: 100
+
+train_parameters:
+  batch_size: 80
+  precision": 16
+
+checkpoint_callback:
+  type: pytorch_lightning.callbacks.ModelCheckpoint
+  filepath: "2020-05-15_l"
+  monitor: val_loss
+  verbose: True
+  mode: min
+  save_top_k: 1
+
+val_parameters:
+  batch_size: 64
+
+optimizer:
+  type: apex.optimizers.fused_sgd.FusedSGD
+  lr: 0.003
+  weight_decay: 0.0001
+  momentum: 0.9
+
+loss:
+  type: torch.nn.CrossEntropyLoss
+
+train_aug:
+  transform:
+    __class_fullname__: albumentations.core.composition.Compose
+    bbox_params: null
+    keypoint_params: null
+    p: 1
+    transforms:
+      - __class_fullname__: albumentations.augmentations.transforms.HorizontalFlip
+        always_apply: false
+        p: 0.5
+      - __class_fullname__: albumentations.augmentations.transforms.RandomRotate90
+        always_apply: false
+        p: 1
+      - __class_fullname__: albumentations.augmentations.transforms.Normalize
+        always_apply: false
+        max_pixel_value: 255.0
+        mean:
+          - 0.485
+          - 0.456
+          - 0.406
+        p: 1
+        std:
+          - 0.229
+          - 0.224
+          - 0.225
+
+val_aug:
+  transform:
+    __class_fullname__: albumentations.core.composition.Compose
+    bbox_params: null
+    keypoint_params: null
+    p: 1
+    transforms:
+      - __class_fullname__: albumentations.augmentations.transforms.Normalize
+        always_apply: false
+        max_pixel_value: 255.0
+        mean:
+          - 0.485
+          - 0.456
+          - 0.406
+        p: 1
+        std:
+          - 0.229
+          - 0.224
+          - 0.225
