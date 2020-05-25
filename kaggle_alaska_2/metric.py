@@ -1,6 +1,7 @@
+from typing import Union
+
 import numpy as np
 from sklearn import metrics
-from typing import Union
 
 
 def alaska_weighted_auc(y_true: Union[np.ndarray, list], y_pred: Union[np.ndarray, list]) -> float:
@@ -10,7 +11,7 @@ def alaska_weighted_auc(y_true: Union[np.ndarray, list], y_pred: Union[np.ndarra
     if len(set(y_true)) == 1:
         return 0
 
-    fpr, tpr, thresholds = metrics.roc_curve(y_true, y_pred, pos_label=1)
+    fpr, tpr, _ = metrics.roc_curve(y_true, y_pred, pos_label=1)
 
     # size of subsets
     areas = np.array(tpr_thresholds[1:]) - np.array(tpr_thresholds[:-1])
