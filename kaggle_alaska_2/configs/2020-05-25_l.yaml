@@ -65,12 +65,12 @@ train_aug:
     keypoint_params: null
     p: 1
     transforms:
-      - __class_fullname__: albumentations.augmentations.transforms.HorizontalFlip
-        always_apply: false
-        p: 0.5
-      - __class_fullname__: albumentations.augmentations.transforms.RandomRotate90
-        always_apply: false
-        p: 1
+#      - __class_fullname__: albumentations.augmentations.transforms.HorizontalFlip
+#        always_apply: false
+#        p: 0.5
+#      - __class_fullname__: albumentations.augmentations.transforms.RandomRotate90
+#        always_apply: false
+#        p: 1
       - __class_fullname__: albumentations.augmentations.transforms.Normalize
         always_apply: false
         max_pixel_value: 255.0
