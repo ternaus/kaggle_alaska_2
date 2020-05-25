@@ -11,7 +11,7 @@ import cv2
 
 
 class Alaska2Dataset(Dataset):
-    def __init__(self, samples: List[Tuple[Path, Path]], transform: albu.Compose, stratified: bool = False) -> None:
+    def __init__(self, samples: List[Tuple[Path, int]], transform: albu.Compose, stratified: bool = False) -> None:
         self.samples = samples
         self.transform = transform
         self.stratified = stratified
@@ -20,18 +20,20 @@ class Alaska2Dataset(Dataset):
     def __len__(self) -> int:
         return len(self.samples)
 
-    def group_samples(self):
-        result = {0: [], 1: []}
+    def group_samples(self) -> Dict[int, List[Path]]:
+        result: Dict[int, List[Path]] = {0: [], 1: []}
+
         for image_path, target in self.samples:
             result[target] += [image_path]
         return result
 
     def __getitem__(self, idx: int) -> Dict[str, Any]:
-        # if self.stratified:
-        #     target = random.choice([0, 1])
-        #     image_path = random.choice(self.grouped[target])
-        # else:
-        image_path, target = self.samples[idx]
+        if self.stratified:
+            target = random.choice([0, 1])
+            image_paths = self.grouped[target]
+            image_path = random.choice(image_paths)
+        else:
+            image_path, target = self.samples[idx]
 
         image = load_rgb(image_path, lib="jpeg4py")
 
