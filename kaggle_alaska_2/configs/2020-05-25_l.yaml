@@ -22,7 +22,7 @@ trainer:
   gpus: 2
   use_amp: True
   amp_level: O1
-  max_epochs: 100
+  max_epochs: 300
   distributed_backend: dp
   num_sanity_val_steps: 2
   train_percent_check: 1
@@ -33,7 +33,7 @@ trainer:
 
 scheduler:
   type: kaggle_alaska_2.schedulers.PolyLR
-  max_iter: 100
+  max_iter: 300
 
 train_parameters:
   batch_size: 100
@@ -48,7 +48,7 @@ checkpoint_callback:
   save_top_k: -1
 
 val_parameters:
-  batch_size: 80
+  batch_size: 100
 
 optimizer:
   type: apex.optimizers.fused_sgd.FusedSGD

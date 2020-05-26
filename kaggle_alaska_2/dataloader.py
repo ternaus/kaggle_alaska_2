@@ -38,8 +38,6 @@ class Alaska2Dataset(Dataset):
 
         image = load_rgb(image_path, lib="jpeg4py")
 
-        image = cv2.cvtColor(image, cv2.COLOR_RGB2YCR_CB)
-
         # apply augmentations
         image = self.transform(image=image)["image"]
 
@@ -62,8 +60,6 @@ class AlaskaTest2Dataset(Dataset):
         image_path = self.samples[idx]
 
         image = load_rgb(image_path, lib="jpeg4py")
-
-        image = cv2.cvtColor(image, cv2.COLOR_RGB2YCR_CB)
 
         # apply augmentations
         image = self.transform(image=image)["image"]
