@@ -8,7 +8,7 @@ from iglovikov_helper_functions.utils.image_utils import load_rgb
 from pytorch_toolbelt.utils.torch_utils import tensor_from_rgb_image
 from torch.utils.data import Dataset
 
-# import cv2
+import cv2
 
 
 class Alaska2Dataset(Dataset):
@@ -38,7 +38,7 @@ class Alaska2Dataset(Dataset):
 
         image = load_rgb(image_path, lib="jpeg4py")
 
-        # image = cv2.cvtColor(image, cv2.COLOR_RGB2YCR_CB)
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2YCR_CB)
 
         # apply augmentations
         image = self.transform(image=image)["image"]
@@ -63,7 +63,7 @@ class AlaskaTest2Dataset(Dataset):
 
         image = load_rgb(image_path, lib="jpeg4py")
 
-        # image = cv2.cvtColor(image, cv2.COLOR_RGB2YCR_CB)
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2YCR_CB)
 
         # apply augmentations
         image = self.transform(image=image)["image"]
