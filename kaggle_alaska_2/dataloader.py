@@ -7,7 +7,8 @@ import torch
 from iglovikov_helper_functions.utils.image_utils import load_rgb
 from pytorch_toolbelt.utils.torch_utils import tensor_from_rgb_image
 from torch.utils.data import Dataset
-import cv2
+
+# import cv2
 
 
 class Alaska2Dataset(Dataset):

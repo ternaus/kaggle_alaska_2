@@ -37,7 +37,7 @@ scheduler:
 
 train_parameters:
   batch_size: 100
-  stratified: True
+  stratified: False
 
 checkpoint_callback:
   type: pytorch_lightning.callbacks.ModelCheckpoint
