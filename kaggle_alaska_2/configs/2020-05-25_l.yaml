@@ -33,7 +33,7 @@ trainer:
 
 scheduler:
   type: kaggle_alaska_2.schedulers.PolyLR
-  max_iter: 20
+  max_iter: 100
 
 train_parameters:
   batch_size: 100
