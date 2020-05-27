@@ -51,8 +51,8 @@ val_parameters:
   batch_size: 100
 
 optimizer:
-  type: apex.optimizers.fused_sgd.FusedSGD
-  lr: 0.01
+  type: torch.optim.SGD
+  lr: 0.001
   weight_decay: 0.0001
 
 loss:
