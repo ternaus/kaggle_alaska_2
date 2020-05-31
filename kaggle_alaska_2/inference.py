@@ -1,21 +1,24 @@
 import argparse
 from pathlib import Path
-import yaml
-from kaggle_alaska_2.train import Alaska2
-from kaggle_alaska_2.dataloader import AlaskaTest2Dataset, Alaska2Dataset
-from torch.utils.data import DataLoader
-from albumentations.core.serialization import from_dict
-from torch import nn
 from typing import Dict
-from kaggle_alaska_2.utils import load_checkpoint
-import torch
-from tqdm import tqdm
+
 import numpy as np
-from sklearn.model_selection import KFold
-from kaggle_alaska_2.utils import get_samples, folder2label
+import pandas as pd
+import torch
+import yaml
+from albumentations.core.serialization import from_dict
 from pytorch_toolbelt.inference import tta
 from sklearn.metrics import log_loss
-import pandas as pd
+from sklearn.model_selection import KFold
+from torch import nn
+from torch.utils.data import DataLoader
+from tqdm import tqdm
+
+from kaggle_alaska_2.dataloader import AlaskaTest2Dataset, Alaska2Dataset
+from kaggle_alaska_2.metric import alaska_weighted_auc
+from kaggle_alaska_2.train import Alaska2
+from kaggle_alaska_2.utils import get_samples, folder2label
+from kaggle_alaska_2.utils import load_checkpoint
 
 
 def get_args():
@@ -35,26 +38,13 @@ def main():
 
     model = Alaska2(hparams=hparams)
 
-    # test_file_names = sorted(Path(hparams.test_image_path).glob("*.jpg"))
-    #
-    # test_aug = from_dict(hparams["train_aug"])
-    #
-    # dataloader = DataLoader(
-    #     AlaskaTest2Dataset(test_file_names, test_aug),
-    #     batch_size=hparams.test_parameters.batch_size,
-    #     num_workers=hparams.num_workers,
-    #     shuffle=False,
-    #     pin_memory=True,
-    #     drop_last=False,
-    # )
-
     corrections: Dict[str, str] = {}
 
     checkpoint = load_checkpoint(file_path=args.checkpoint_path, rename_in_layers=corrections)  # type: ignore
 
     model.load_state_dict(checkpoint["state_dict"])
 
-    model = nn.Sequential(model, nn.Softmax())
+    model = nn.Sequential(model, nn.Sigmoid())
 
     model.eval()
     model = model.half()
@@ -68,7 +58,7 @@ def main():
         kf = KFold(n_splits=hparams["num_folds"], random_state=hparams["seed"], shuffle=True)
 
         for folder in sorted(list(folder2label.keys())):
-            samples = np.array(get_samples(Path(hparams["test_data_path"]) / folder))
+            samples = np.array(get_samples(Path(hparams["data_path"]) / folder))
 
             for fold_id, (_, val_index) in enumerate(kf.split(samples)):
                 if fold_id != hparams["fold_id"]:
@@ -94,15 +84,16 @@ def main():
 
             preds = model(features.half().cuda())
 
-            y_pred += preds[:, 1].cpu().numpy().tolist()
-            y_true += targets.cpu().numpy().tolist()
+            y_pred += preds.cpu().numpy().T.tolist()[0]
+            y_true += targets.cpu().numpy().T.tolist()[0]
 
         print("Val log loss = ", log_loss(y_true, y_pred))
+        print("Auc = ", alaska_weighted_auc(y_true, y_pred))
 
         print("Evaluate on test.")
-        test_aug = from_dict(hparams["val_aug"])
+        test_aug = from_dict(hparams["test_aug"])
 
-        test_file_names = sorted((Path(hparams["test_data_path"]) / "Test").glob("*.jpg"))
+        test_file_names = sorted((Path(hparams["data_path"]) / "Test").glob("*.jpg"))
 
         dataloader = DataLoader(
             AlaskaTest2Dataset(test_file_names, test_aug),
@@ -122,10 +113,12 @@ def main():
 
             if hparams["test_parameters"]["tta"] == "d4":
                 preds = tta.d4_image2label(model, features.half().cuda())
+            elif hparams["test_parameters"]["tta"] == "lr":
+                preds = tta.fliplr_image2label(model, features.half().cuda())
             else:
                 preds = model(features.half().cuda())
 
-            y_pred += preds[:, 1].cpu().numpy().tolist()
+            y_pred += preds.cpu().numpy().T.tolist()[0]
 
         submission = pd.DataFrame({"Id": file_ids, "Label": y_pred})
 

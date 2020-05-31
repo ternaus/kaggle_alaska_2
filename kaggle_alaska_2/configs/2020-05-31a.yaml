@@ -14,6 +14,7 @@ model:
   type: timm.create_model
   model_name: seresnext26tn_32x4d
   num_classes: 1
+  pretrained: True
 
 trainer:
   type: pytorch_lightning.Trainer
@@ -48,7 +49,11 @@ checkpoint_callback:
   save_top_k: -1
 
 val_parameters:
-  batch_size: 24
+  batch_size: 48
+
+test_parameters:
+  batch_size: 12
+  tta: d4
 
 optimizer:
   type: torch.optim.SGD
@@ -86,6 +91,26 @@ train_aug:
 
 
 val_aug:
+  transform:
+    __class_fullname__: albumentations.core.composition.Compose
+    bbox_params: null
+    keypoint_params: null
+    p: 1
+    transforms:
+      - __class_fullname__: albumentations.augmentations.transforms.Normalize
+        always_apply: false
+        max_pixel_value: 255.0
+        mean:
+          - 0.8479653533277325
+          - 0.6896137811728085
+          - 0.7924397729671702
+        p: 1
+        std:
+          - 0.16774536877893925
+          - 0.2740486792335106
+          - 0.18297546821447516
+
+test_aug:
   transform:
     __class_fullname__: albumentations.core.composition.Compose
     bbox_params: null

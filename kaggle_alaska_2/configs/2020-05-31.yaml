@@ -1,6 +1,7 @@
 ---
 seed: 1984
 data_path: /home/vladimir/workspace/evo970/data/kaggle_alaska_2
+
 sync_bn: True
 num_folds: 5
 fold_id: 0
@@ -13,6 +14,7 @@ val_csv_logs: "val.csv"
 model:
   type: timm.create_model
   model_name: seresnext26tn_32x4d
+  pretrained: True
   num_classes: 1
 
 trainer:
@@ -49,6 +51,9 @@ checkpoint_callback:
 
 val_parameters:
   batch_size: 24
+test_parameters:
+  batch_size: 4
+  tta: d4
 
 optimizer:
   type: torch.optim.SGD
