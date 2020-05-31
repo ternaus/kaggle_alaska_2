@@ -1,11 +1,11 @@
 ---
 seed: 1984
-data_path: /tmp/kaggle_alaska_2
+data_path: /home/vladimir/workspace/evo970/data/kaggle_alaska_2
 sync_bn: True
 num_folds: 5
 fold_id: 0
 num_workers: 16
-experiment_name: "2020-05-25"
+experiment_name: "2020-05-31"
 
 train_csv_logs: "train.csv"
 val_csv_logs: "val.csv"
@@ -22,33 +22,33 @@ trainer:
   gpus: 2
   use_amp: True
   amp_level: O1
-  max_epochs: 300
-  distributed_backend: dp
+  max_epochs: 100
+  distributed_backend: ddp
   num_sanity_val_steps: 2
   train_percent_check: 1
   val_percent_check: 1.0
   progress_bar_refresh_rate: 1
   benchmark: True
-  precision": 16
+  precision: 16
 
 scheduler:
   type: kaggle_alaska_2.schedulers.PolyLR
-  max_iter: 300
+  max_iter: 100
 
 train_parameters:
-  batch_size: 100
+  batch_size: 24
   stratified: False
 
 checkpoint_callback:
   type: pytorch_lightning.callbacks.ModelCheckpoint
-  filepath: "2020-05-25"
+  filepath: "2020-05-31"
   monitor: val_loss
   verbose: True
   mode: min
   save_top_k: -1
 
 val_parameters:
-  batch_size: 100
+  batch_size: 24
 
 optimizer:
   type: torch.optim.SGD
@@ -75,14 +75,15 @@ train_aug:
         always_apply: false
         max_pixel_value: 255.0
         mean:
-          - 0.485
-          - 0.456
-          - 0.406
+          - 0.8479653533277325
+          - 0.6896137811728085
+          - 0.7924397729671702
         p: 1
         std:
-          - 0.229
-          - 0.224
-          - 0.225
+          - 0.16774536877893925
+          - 0.2740486792335106
+          - 0.18297546821447516
+
 
 val_aug:
   transform:
@@ -95,11 +96,11 @@ val_aug:
         always_apply: false
         max_pixel_value: 255.0
         mean:
-          - 0.485
-          - 0.456
-          - 0.406
+          - 0.8479653533277325
+          - 0.6896137811728085
+          - 0.7924397729671702
         p: 1
         std:
-          - 0.229
-          - 0.224
-          - 0.225
+          - 0.16774536877893925
+          - 0.2740486792335106
+          - 0.18297546821447516

@@ -16,13 +16,18 @@ import csv
 
 from pytorch_lightning.loggers import LightningLoggerBase
 from pytorch_lightning.utilities import rank_zero_only
+from pathlib import Path
 
 
 class CsvLogger(LightningLoggerBase):
     def __init__(self, train_csv_path, val_csv_path, train_columns, val_columns):
         super().__init__()
+
         self.train_csv_path = train_csv_path
         self.val_csv_path = val_csv_path
+
+        Path(self.train_csv_path.parent).mkdir(exist_ok=True, parents=True)
+        Path(self.val_csv_path.parent).mkdir(exist_ok=True, parents=True)
 
         self.train_columns = train_columns
         self.val_columns = val_columns
