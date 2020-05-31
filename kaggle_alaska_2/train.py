@@ -16,7 +16,6 @@ from sklearn.model_selection import KFold
 from torch.utils.data import DataLoader
 
 from kaggle_alaska_2.dataloader import Alaska2Dataset
-from kaggle_alaska_2.logger import CsvLogger
 from kaggle_alaska_2.metric import alaska_weighted_auc
 from kaggle_alaska_2.utils import get_samples, folder2label
 
@@ -146,13 +145,13 @@ def main():
     with open(args.config_path) as f:
         hparams = yaml.load(f, Loader=yaml.SafeLoader)
 
-    csv_logger = CsvLogger(
-        train_csv_path=Path(hparams["experiment_name"]) / "train.csv",
-        val_csv_path=Path(hparams["experiment_name"]) / "val.csv",
-        train_columns=["train_loss", "lr"],
-        val_columns=["val_loss", "auc_score"],
-    )
-
+    # csv_logger = CsvLogger(
+    #     train_csv_path=Path(hparams["experiment_name"]) / "train.csv",
+    #     val_csv_path=Path(hparams["experiment_name"]) / "val.csv",
+    #     train_columns=["train_loss", "lr"],
+    #     val_columns=["val_loss", "auc_score"],
+    # )
+    #
     neptune_logger = NeptuneLogger(
         api_key=os.environ["NEPTUNE_API_TOKEN"],
         project_name="ternaus/kagglealaska2",
@@ -167,7 +166,7 @@ def main():
 
     trainer = object_from_dict(
         hparams["trainer"],
-        logger=[neptune_logger, csv_logger],
+        logger=neptune_logger,
         checkpoint_callback=object_from_dict(hparams["checkpoint_callback"]),
     )
 

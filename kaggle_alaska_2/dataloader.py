@@ -8,8 +8,6 @@ from iglovikov_helper_functions.utils.image_utils import load_rgb
 from pytorch_toolbelt.utils.torch_utils import tensor_from_rgb_image
 from torch.utils.data import Dataset
 
-import cv2
-
 
 class Alaska2Dataset(Dataset):
     def __init__(self, samples: List[Tuple[Path, int]], transform: albu.Compose, stratified: bool = False) -> None:
