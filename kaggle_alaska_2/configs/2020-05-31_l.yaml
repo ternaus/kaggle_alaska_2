@@ -38,7 +38,7 @@ scheduler:
   max_iter: 300
 
 train_parameters:
-  batch_size: 100
+  batch_size: 80
   stratified: False
 
 checkpoint_callback:
@@ -50,7 +50,7 @@ checkpoint_callback:
   save_top_k: -1
 
 val_parameters:
-  batch_size: 100
+  batch_size: 80
 
 optimizer:
   type: torch.optim.SGD
