@@ -13,6 +13,7 @@ val_csv_logs: "val.csv"
 model:
   type: timm.create_model
   model_name: seresnext26tn_32x4d
+  pretrained: True
   num_classes: 1
 
 trainer:
