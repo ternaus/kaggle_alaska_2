@@ -5,7 +5,7 @@ sync_bn: True
 num_folds: 5
 fold_id: 0
 num_workers: 16
-experiment_name: "2020-06-01_l"
+experiment_name: "2020-06-02_l"
 
 train_csv_logs: "train.csv"
 val_csv_logs: "val.csv"
@@ -20,7 +20,7 @@ trainer:
   type: pytorch_lightning.Trainer
   early_stop_callback: False
   default_save_path: ./
-  gpus: 1
+  gpus: 2
   use_amp: True
   amp_level: O1
   max_epochs: 100
@@ -43,7 +43,7 @@ train_parameters:
 
 checkpoint_callback:
   type: pytorch_lightning.callbacks.ModelCheckpoint
-  filepath: "2020-06-01_l"
+  filepath: "2020-06-02_l"
   monitor: val_loss
   verbose: True
   mode: min
