@@ -5,7 +5,7 @@ sync_bn: True
 num_folds: 5
 fold_id: 0
 num_workers: 16
-experiment_name: "2020-05-31a"
+experiment_name: "2020-06-02a"
 
 train_csv_logs: "train.csv"
 val_csv_logs: "val.csv"
@@ -14,7 +14,7 @@ model:
   type: timm.create_model
   model_name: seresnext26tn_32x4d
   pretrained: True
-  num_classes: 1
+  num_classes: 4
 
 trainer:
   type: pytorch_lightning.Trainer
@@ -42,7 +42,7 @@ train_parameters:
 
 checkpoint_callback:
   type: pytorch_lightning.callbacks.ModelCheckpoint
-  filepath: "2020-05-31a"
+  filepath: "2020-06-02a"
   monitor: val_loss
   verbose: True
   mode: min
@@ -56,12 +56,13 @@ test_parameters:
   tta: d4
 
 optimizer:
-  type: torch.optim.SGD
+  type: torch.optim.AdamW
   lr: 0.001
-  weight_decay: 0.0001
 
 loss:
-  type: torch.nn.BCEWithLogitsLoss
+  type: torchtoolbox.nn.LabelSmoothingLoss
+  classes: 4
+  smoothing: 0.1
 
 train_aug:
   transform:
@@ -70,12 +71,12 @@ train_aug:
     keypoint_params: null
     p: 1
     transforms:
-#      - __class_fullname__: albumentations.augmentations.transforms.HorizontalFlip
-#        always_apply: false
-#        p: 0.5
-#      - __class_fullname__: albumentations.augmentations.transforms.RandomRotate90
-#        always_apply: false
-#        p: 1
+      - __class_fullname__: albumentations.augmentations.transforms.HorizontalFlip
+        always_apply: false
+        p: 0.5
+      - __class_fullname__: albumentations.augmentations.transforms.RandomRotate90
+        always_apply: false
+        p: 1
       - __class_fullname__: albumentations.augmentations.transforms.Normalize
         always_apply: false
         max_pixel_value: 255.0

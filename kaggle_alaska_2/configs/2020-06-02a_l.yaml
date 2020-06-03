@@ -1,20 +1,20 @@
 ---
 seed: 1984
-data_path: /home/vladimir/workspace/evo970/data/kaggle_alaska_2
+data_path: /tmp/kaggle_alaska_2
 sync_bn: True
 num_folds: 5
 fold_id: 0
 num_workers: 16
-experiment_name: "2020-05-31a"
+experiment_name: "2020-06-02a_l"
 
 train_csv_logs: "train.csv"
 val_csv_logs: "val.csv"
 
 model:
   type: timm.create_model
-  model_name: seresnext26tn_32x4d
-  pretrained: True
+  model_name: tf_efficientnet_b3_ns
   num_classes: 1
+  pretrained: True
 
 trainer:
   type: pytorch_lightning.Trainer
@@ -34,34 +34,31 @@ trainer:
 
 scheduler:
   type: kaggle_alaska_2.schedulers.PolyLR
-  max_iter: 100
+  max_iter: 300
 
 train_parameters:
-  batch_size: 24
-  stratified: True
+  batch_size: 32
+  stratified: False
 
 checkpoint_callback:
   type: pytorch_lightning.callbacks.ModelCheckpoint
-  filepath: "2020-05-31a"
+  filepath: "2020-06-02a_l"
   monitor: val_loss
   verbose: True
   mode: min
   save_top_k: -1
 
 val_parameters:
-  batch_size: 48
-
-test_parameters:
-  batch_size: 12
-  tta: d4
+  batch_size: 32
 
 optimizer:
-  type: torch.optim.SGD
+  type: torch.optim.AdamW
   lr: 0.001
-  weight_decay: 0.0001
 
 loss:
-  type: torch.nn.BCEWithLogitsLoss
+  type: torchtoolbox.nn.LabelSmoothingLoss
+  classes: 4
+  smoothing: 0.1
 
 train_aug:
   transform:
@@ -70,12 +67,12 @@ train_aug:
     keypoint_params: null
     p: 1
     transforms:
-#      - __class_fullname__: albumentations.augmentations.transforms.HorizontalFlip
-#        always_apply: false
-#        p: 0.5
-#      - __class_fullname__: albumentations.augmentations.transforms.RandomRotate90
-#        always_apply: false
-#        p: 1
+      - __class_fullname__: albumentations.augmentations.transforms.HorizontalFlip
+        always_apply: false
+        p: 0.5
+      - __class_fullname__: albumentations.augmentations.transforms.RandomRotate90
+        always_apply: false
+        p: 1
       - __class_fullname__: albumentations.augmentations.transforms.Normalize
         always_apply: false
         max_pixel_value: 255.0
@@ -88,29 +85,8 @@ train_aug:
           - 0.16774536877893925
           - 0.2740486792335106
           - 0.18297546821447516
-
 
 val_aug:
-  transform:
-    __class_fullname__: albumentations.core.composition.Compose
-    bbox_params: null
-    keypoint_params: null
-    p: 1
-    transforms:
-      - __class_fullname__: albumentations.augmentations.transforms.Normalize
-        always_apply: false
-        max_pixel_value: 255.0
-        mean:
-          - 0.8479653533277325
-          - 0.6896137811728085
-          - 0.7924397729671702
-        p: 1
-        std:
-          - 0.16774536877893925
-          - 0.2740486792335106
-          - 0.18297546821447516
-
-test_aug:
   transform:
     __class_fullname__: albumentations.core.composition.Compose
     bbox_params: null

@@ -2,7 +2,7 @@ import argparse
 import os
 from pathlib import Path
 from typing import Dict, Any, List
-
+from torch import nn
 import apex
 import numpy as np
 import pytorch_lightning as pl
@@ -24,7 +24,6 @@ def get_args():
     parser = argparse.ArgumentParser()
     arg = parser.add_argument
     arg("-c", "--config_path", type=Path, help="Path to the config.", required=True)
-    arg("-r", "--resume", type=Path, help="Path to the checkpoint.")
     return parser.parse_args()
 
 
@@ -63,12 +62,8 @@ class Alaska2(pl.LightningModule):
     def train_dataloader(self):
         train_aug = from_dict(self.hparams["train_aug"])
 
-        stratified = (
-            "stratified" in self.hparams["train_parameters"] and self.hparams["train_parameters"]["stratified"]
-        )
-
         result = DataLoader(
-            Alaska2Dataset(self.train_samples, train_aug, stratified=stratified),
+            Alaska2Dataset(self.train_samples, train_aug),
             batch_size=self.hparams["train_parameters"]["batch_size"],
             num_workers=self.hparams["num_workers"],
             shuffle=True,
@@ -128,8 +123,10 @@ class Alaska2(pl.LightningModule):
         result_targets: List[float] = []
 
         for output in outputs:
-            result_logits += torch.sigmoid(output["logits"]).cpu().numpy().flatten().tolist()
-            result_targets += output["targets"].cpu().numpy().flatten().tolist()
+            y_true = output["targets"].cpu().numpy().clip(min=0, max=1)
+            y_pred = 1 - nn.functional.softmax(output["logits"], dim=1).data.cpu().numpy()[:, 0]
+            result_logits += y_pred.tolist()
+            result_targets += y_true.tolist()
 
         auc_score = alaska_weighted_auc(result_targets, result_logits)
 
@@ -145,13 +142,6 @@ def main():
     with open(args.config_path) as f:
         hparams = yaml.load(f, Loader=yaml.SafeLoader)
 
-    # csv_logger = CsvLogger(
-    #     train_csv_path=Path(hparams["experiment_name"]) / "train.csv",
-    #     val_csv_path=Path(hparams["experiment_name"]) / "val.csv",
-    #     train_columns=["train_loss", "lr"],
-    #     val_columns=["val_loss", "auc_score"],
-    # )
-    #
     neptune_logger = NeptuneLogger(
         api_key=os.environ["NEPTUNE_API_TOKEN"],
         project_name="ternaus/kagglealaska2",

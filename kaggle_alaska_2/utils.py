@@ -6,7 +6,8 @@ import re
 from typing import Optional, Any
 import torch
 
-folder2label = {"Cover": 0, "JMiPOD": 1, "JUNIWARD": 1, "UERD": 1}
+# folder2label = {"Cover": 0, "JMiPOD": 1, "JUNIWARD": 1, "UERD": 1}
+folder2label = {"Cover": 0, "JMiPOD": 1, "JUNIWARD": 2, "UERD": 3}
 
 idx2name = dict(zip(range(len(folder2label)), sorted(folder2label.keys())))
 
