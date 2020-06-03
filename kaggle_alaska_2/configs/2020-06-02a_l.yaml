@@ -13,7 +13,7 @@ val_csv_logs: "val.csv"
 model:
   type: timm.create_model
   model_name: tf_efficientnet_b3_ns
-  num_classes: 1
+  num_classes: 4
   pretrained: True
 
 trainer:
