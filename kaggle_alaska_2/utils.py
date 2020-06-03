@@ -27,6 +27,10 @@ def alaska_weighted_auc(y_true: Union[np.ndarray, list], y_valid: Union[np.ndarr
     weights = [2, 1]
 
     y_true = np.array(y_true)
+
+    if len(set(y_true)) == 1:
+        return 0
+
     y_valid = np.array(y_valid)
 
     fpr, tpr, _ = metrics.roc_curve(y_true, y_valid, pos_label=1)
